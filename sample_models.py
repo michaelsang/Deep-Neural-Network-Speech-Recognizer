@@ -147,21 +147,33 @@ def bidirectional_rnn_model(input_dim, units, output_dim=29):
 
 
 #combine bidirectional and deep_rnn to get: bidirectional_deep_rnn
-#def final_model(input_dim, recur_layers, filters=200, kernel_size=11, conv_stride=2,conv_border_mode='valid', units, output_dim=29):
-def final_model(input_dim, recur_layers, units, output_dim=29):
+def final_model(input_dim, recur_layers, filters, kernel_size, conv_stride,conv_border_mode, units, output_dim=29):
+#def final_model(input_dim, recur_layers, units, output_dim=29):
     """ Build a deep network for speech 
     """
     # Main acoustic input
     input_data = Input(name='the_input', shape=(None, input_dim))
-    # TODO: Specify the bidirectional recurrent layers in your network    
-   # previous_input = input_data
-   # bidir_rnn = []
+
+    # Add convolutional layer
+    conv_1d = Conv1D(filters, kernel_size, 
+                     strides=conv_stride, 
+                     padding=conv_border_mode,
+                     activation='relu',
+                     name='conv1d')(input_data)
+    # Add batch normalization
+    #Done after bidirectional recurrent layers in network.
+#    bn_cnn = BatchNormalization(name='bn_conv_1d')(conv_1d)
+
     
+    
+    
+    # Add a recurrent layer   
+    # TODO: Specify the bidirectional recurrent layers in your network        
     for i in range (recur_layers):
         if i:
             bidir_deep_rnn = Bidirectional(GRU(units, return_sequences=True, implementation=2, name="rnn"),merge_mode='concat')(bidir_deep_rnn)
         else:
-            bidir_deep_rnn = Bidirectional(GRU(units, return_sequences=True, implementation=2, name="rnn"),merge_mode='concat')(input_data)
+            bidir_deep_rnn = Bidirectional(GRU(units, return_sequences=True, implementation=2, name="rnn"),merge_mode='concat')(conv_1d)
         
     # Add batch normalization
     bn_bidir_deep_rnn = BatchNormalization()(bidir_deep_rnn)
@@ -176,7 +188,9 @@ def final_model(input_dim, recur_layers, units, output_dim=29):
     model = Model(inputs=input_data, outputs=y_pred)
     # TODO: Specify model.output_length. 
     # output_length attribute is a lambda function that maps the (temporal) length of the input acoustic features to the (temporal) length of the output softmax layer.    
-    model.output_length = lambda x: x
+    model.output_length = lambda x: cnn_output_length(
+        x, kernel_size, conv_border_mode, conv_stride)
     print(model.summary())
     return model
+
 
