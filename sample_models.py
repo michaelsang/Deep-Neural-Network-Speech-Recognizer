@@ -160,12 +160,6 @@ def final_model(input_dim, recur_layers, filters, kernel_size, conv_stride,conv_
                      padding=conv_border_mode,
                      activation='relu',
                      name='conv1d')(input_data)
-    # Add batch normalization
-    #Done after bidirectional recurrent layers in network.
-#    bn_cnn = BatchNormalization(name='bn_conv_1d')(conv_1d)
-
-    
-    
     
     # Add a recurrent layer   
     # TODO: Specify the bidirectional recurrent layers in your network        
