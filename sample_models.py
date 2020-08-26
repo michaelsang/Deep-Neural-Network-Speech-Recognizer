@@ -180,8 +180,7 @@ def final_model(input_dim, recur_layers, filters, kernel_size, conv_stride,conv_
     y_pred = Activation('softmax', name='softmax')(time_dense)
     # Specify the model
     model = Model(inputs=input_data, outputs=y_pred)
-    # TODO: Specify model.output_length. 
-    # output_length attribute is a lambda function that maps the (temporal) length of the input acoustic features to the (temporal) length of the output softmax layer.    
+    # TODO: Specify model.output_length.   
     model.output_length = lambda x: cnn_output_length(
         x, kernel_size, conv_border_mode, conv_stride)
     print(model.summary())
